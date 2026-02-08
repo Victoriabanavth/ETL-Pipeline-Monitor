@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETL Pipeline Monitor | Victoria Banavath</title>
+    <meta name="description"
+        content="Real-time dashboard for monitoring data pipeline health with flow visualization, error tracking, and automated alerting.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🔄</span>
+                <div>
+                    <h1>Pipeline Monitor</h1>
+                    <p class="tagline">Real-Time ETL Health Dashboard</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator online">
+                    <span class="pulse"></span>
+                    System Online
+                </div>
+                <span class="last-update" id="lastUpdate">Updated: --:--:--</span>
+            </div>
+        </header>
+
+        <!-- Pipeline Overview -->
+        <section class="pipeline-overview">
+            <h2>Pipeline Flow</h2>
+            <div class="pipeline-flow" id="pipelineFlow">
+                <!-- Source -->
+                <div class="pipeline-stage" data-stage="source">
+                    <div class="stage-icon">📥</div>
+                    <div class="stage-info">
+                        <span class="stage-name">Data Sources</span>
+                        <span class="stage-count" id="sourceCount">8 Active</span>
+                    </div>
+                    <div class="stage-status success" id="sourceStatus">
+                        <span class="status-dot"></span>
+                        <span>Healthy</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">
+                    <div class="arrow-line">
+                        <div class="arrow-flow" id="flow1"></div>
+                    </div>
+                    <span class="flow-rate" id="flowRate1">2.4K/s</span>
+                </div>
+
+                <!-- Extract -->
+                <div class="pipeline-stage" data-stage="extract">
+                    <div class="stage-icon">⬇️</div>
+                    <div class="stage-info">
+                        <span class="stage-name">Extract</span>
+                        <span class="stage-count" id="extractCount">Processing</span>
+                    </div>
+                    <div class="stage-status success" id="extractStatus">
+                        <span class="status-dot"></span>
+                        <span>Running</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">
+                    <div class="arrow-line">
+                        <div class="arrow-flow" id="flow2"></div>
+                    </div>
+                    <span class="flow-rate" id="flowRate2">1.8K/s</span>
+                </div>
+
+                <!-- Transform -->
+                <div class="pipeline-stage" data-stage="transform">
+                    <div class="stage-icon">⚙️</div>
+                    <div class="stage-info">
+                        <span class="stage-name">Transform</span>
+                        <span class="stage-count" id="transformCount">12 Jobs</span>
+                    </div>
+                    <div class="stage-status success" id="transformStatus">
+                        <span class="status-dot"></span>
+                        <span>Healthy</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">
+                    <div class="arrow-line">
+                        <div class="arrow-flow" id="flow3"></div>
+                    </div>
+                    <span class="flow-rate" id="flowRate3">1.5K/s</span>
+                </div>
+
+                <!-- Load -->
+                <div class="pipeline-stage" data-stage="load">
+                    <div class="stage-icon">📊</div>
+                    <div class="stage-info">
+                        <span class="stage-name">Load</span>
+                        <span class="stage-count" id="loadCount">Snowflake</span>
+                    </div>
+                    <div class="stage-status success" id="loadStatus">
+                        <span class="status-dot"></span>
+                        <span>Synced</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Metrics Grid -->
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon">📈</div>
+                <div class="metric-content">
+                    <span class="metric-value" id="recordsProcessed">0</span>
+                    <span class="metric-label">Records Today</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">⚡</div>
+                <div class="metric-content">
+                    <span class="metric-value" id="throughput">0</span>
+                    <span class="metric-label">Throughput/sec</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">⏱️</div>
+                <div class="metric-content">
+                    <span class="metric-value" id="avgLatency">0</span>
+                    <span class="metric-label">Avg Latency (ms)</span>
+                </div>
+            </div>
+            <div class="metric-card success">
+                <div class="metric-icon">✅</div>
+                <div class="metric-content">
+                    <span class="metric-value" id="successRate">0%</span>
+                    <span class="metric-label">Success Rate</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Jobs & Logs -->
+        <section class="content-grid">
+            <!-- Active Jobs -->
+            <div class="card jobs-card">
+                <div class="card-header">
+                    <h3>Active Jobs</h3>
+                    <span class="job-count" id="jobCount">0 Running</span>
+                </div>
+                <div class="jobs-list" id="jobsList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Recent Logs -->
+            <div class="card logs-card">
+                <div class="card-header">
+                    <h3>Event Log</h3>
+                    <button class="btn-clear" onclick="clearLogs()">Clear</button>
+                </div>
+                <div class="logs-container" id="logsContainer">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Sources Table -->
+        <section class="card sources-card">
+            <div class="card-header">
+                <h3>Data Sources</h3>
+                <div class="source-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="database">Database</button>
+                    <button class="filter-btn" data-filter="api">API</button>
+                    <button class="filter-btn" data-filter="file">File</button>
+                </div>
+            </div>
+            <div class="sources-table-container">
+                <table class="sources-table" id="sourcesTable">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Last Sync</th>
+                            <th>Records</th>
+                            <th>Latency</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sourcesBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built by <a href="https://victoriabanavath.com" target="_blank">Victoria Banavath</a> • ETL Pipeline
+                Monitor</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
